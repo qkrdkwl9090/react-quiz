@@ -1,4 +1,10 @@
 import styled from "styled-components";
+import { useQuery } from "@tanstack/react-query";
+import { fetchQuiz } from "../api";
+import { useEffect } from "react";
+import { quizAtom } from "../atoms";
+import { Response } from "../types";
+import { useSetRecoilState } from "recoil";
 
 const Container = styled.div`
   padding: 32px;
@@ -26,12 +32,32 @@ const JoinButton = styled.button`
   }
 `;
 function Intro() {
+  const setQuiz = useSetRecoilState(quizAtom);
+  const { isLoading, isError, data } = useQuery<Response>({
+    queryKey: ["quiz"],
+    queryFn: fetchQuiz,
+  });
+  useEffect(() => {
+    if (!data?.results?.length) return;
+
+    setQuiz(
+      data.results.map((result) => {
+        return {
+          ...result,
+          isCorrect: false, // 정답 여부
+          hasTried: false, // 시도 여부
+          reviewNote: "", // 오답 노트
+        };
+      })
+    );
+  }, [data]);
+
   return (
     <Container>
       <SubTitle>QUIZ with React</SubTitle>
       <div>
         <Title>Let's play Quiz!</Title>
-        <JoinButton>Join Quiz</JoinButton>
+        <JoinButton disabled={isLoading || isError}>Join Quiz</JoinButton>
       </div>
     </Container>
   );
