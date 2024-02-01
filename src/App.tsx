@@ -1,6 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { firstTheme, secondTheme, thirdTheme } from "./theme";
+import { themeAtom } from "./atoms";
+import { useRecoilValue } from "recoil";
 
 // reset css
 const GlobalStyle = createGlobalStyle`
@@ -68,8 +70,17 @@ a {
 }
 `;
 function App() {
+  const currentTheme = useRecoilValue(themeAtom);
   return (
-    <ThemeProvider theme={firstTheme}>
+    <ThemeProvider
+      theme={
+        currentTheme === "first"
+          ? firstTheme
+          : currentTheme === "second"
+          ? secondTheme
+          : thirdTheme
+      }
+    >
       <GlobalStyle />
       <Outlet />
     </ThemeProvider>
